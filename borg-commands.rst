@@ -22,7 +22,7 @@ date-and-time. ::
 Exclude from Backup
 =====================================================================
 
-A big part of daily backups is this `.cache` direcrory. The changes are from Firefox. ::
+A big part of daily backups is this `.cache` directory. The changes are from Firefox. ::
 
     .cache/*
 

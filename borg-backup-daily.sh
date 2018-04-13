@@ -1,21 +1,72 @@
 #!/bin/sh
 
-# Setting this, so the repo does not need to be given on the commandline:
-export BORG_REPO='/backup/borg-backup/lixie-backup-test-4/'
+# Show debugging output
+#set -x
 
-# Setting this, so you won't be asked for your repository passphrase:
-export BORG_PASSPHRASE='Sesam'
-# or this to ask an external program to supply the passphrase:
-#export BORG_PASSCOMMAND='pass show backup'
+# ----------------------------------------------------------------------------
+#                     Create Backups with **Borg**
+# ----------------------------------------------------------------------------
+# This script creates backups on a local had disk. It keeps a number of past
+# backups, and deletes backups that are too old. It uses the Backup program
+# *Borg*.
+#
+# Documentation and source code for the *Borg* program itself:
+#     https://borgbackup.readthedocs.io/en/stable/index.html
+#     https://github.com/borgbackup/borg/
+#
+# ----------------------------------------------------------------------------
+# Create new backup repositories with the following command:
+#
+#     borg init --encryption=repokey /backup/borg-backup/lixie-backup-1.borg
+#
+# ----------------------------------------------------------------------------
+# List the repository's contents:
+#
+#     borg list /backup/borg-backup/lixie-backup-1.borg
+#
+# Restore an archive: The restored files are created in the current working
+# directory.
+#
+#     borg extract /backup/borg-backup/lixie-backup-1.borg/::lixie-2018-04-13T17:11:46
+#
+# ----------------------------------------------------------------------------
+# Copy the backup repository to an other (removable) disk with `rsync`. Option
+# `--delete` deletes file which are no longer in the source directory.
+#
+#     rsync --verbose --archive --delete            \
+#          /backup/borg-backup/lixie-backup-1.borg  \
+#          /path/to/other/disk                      \
+#
+# ----------------------------------------------------------------------------
 
-# some helpers and error handling:
+# ----------------------------------------------------------------------------
+# Create the backup configuration file `repo-secrets.sh`:
+#
+# `repo-secrets.sh` must contain the following lines:
+# (You may uncomment these lines here to simplify the setup.)
+#
+#     # The location of the backup repository.
+#     export BORG_REPO='/backup/borg-backup/lixie-backup-1.borg'
+#     # The repository's passphrase:
+#     export BORG_PASSPHRASE='xxxxxxxxxxx'
+#
+# ----------------------------------------------------------------------------
+# Set the repository location and passphrase. --------------------------------
+source /etc/borg-backup/repo-secrets.sh
+
+# some helpers and error handling: -------------------------------------------
 info() { printf "\n%s %s\n\n" "$( date )" "$*" >&2; }
 trap 'echo $( date ) Backup interrupted >&2; exit 2' INT TERM
 
-info "Starting backup"
+info "Starting backup - $BORG_REPO"
 
-# Backup the most important directories into an archive named after
-# the machine this script is currently running on:
+# Create the backup ----------------------------------------------------------
+# The command line is for the older *Borg* version 1.0.10
+# The archive name consists of the hostname, the current date and time.
+
+# Further cache directories that may be excluded from the archive:
+#    --exclude '/var/cache/*'                  \
+#    --exclude '/var/tmp/*'                    \
 
 borg create                                   \
     --verbose                                 \
@@ -26,10 +77,9 @@ borg create                                   \
     --compression lz4                         \
     --exclude-caches                          \
     --exclude '/home/*/.cache/*'              \
-    --exclude '/var/cache/*'                  \
-    --exclude '/var/tmp/*'                    \
                                               \
     ::'{hostname}-{utcnow:%Y-%m-%dT%H:%M:%S}' \
+                                              \
     '/home'                                   \
     '/usr/local'                              \
 
@@ -37,10 +87,11 @@ backup_exit=$?
 
 info "Pruning repository"
 
-# Use the `prune` subcommand to maintain 7 daily, 4 weekly and 6 monthly
-# archives of THIS machine. The '{hostname}-' prefix is very important to
-# limit prune's operation to this machine's archives and not apply to
-# other machines' archives also:
+# Delete old archives --------------------------------------------------------
+# Use the `prune` subcommand to maintain 10 daily, 10 weekly, 10 monthly and
+# unlimited yearly archives of THIS machine. The '{hostname}-' prefix is very
+# important to limit prune's operation to this machine's archives and not apply
+# to other machines' archives also:
 
 borg prune                          \
     --list                          \
@@ -53,6 +104,7 @@ borg prune                          \
 
 prune_exit=$?
 
+# Error handling -------------------------------------------------------------
 # use highest exit code as global exit code
 global_exit=$(( backup_exit > prune_exit ? backup_exit : prune_exit ))
 
@@ -67,4 +119,4 @@ then
 fi
 
 exit ${global_exit}
- 
+
