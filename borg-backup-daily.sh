@@ -1,12 +1,12 @@
 #!/bin/sh
 
 # Setting this, so the repo does not need to be given on the commandline:
-export BORG_REPO=ssh://username@example.com:2022/~/backup/main
+export BORG_REPO='/backup/borg-backup/lixie-backup-test-4/'
 
 # Setting this, so you won't be asked for your repository passphrase:
-export BORG_PASSPHRASE='XYZl0ngandsecurepa_55_phrasea&&123'
+export BORG_PASSPHRASE='Sesam'
 # or this to ask an external program to supply the passphrase:
-export BORG_PASSCOMMAND='pass show backup'
+#export BORG_PASSCOMMAND='pass show backup'
 
 # some helpers and error handling:
 info() { printf "\n%s %s\n\n" "$( date )" "$*" >&2; }
@@ -17,23 +17,21 @@ info "Starting backup"
 # Backup the most important directories into an archive named after
 # the machine this script is currently running on:
 
-borg create                         \
-    --verbose                       \
-    --filter AME                    \
-    --list                          \
-    --stats                         \
-    --show-rc                       \
-    --compression lz4               \
-    --exclude-caches                \
-    --exclude '/home/*/.cache/*'    \
-    --exclude '/var/cache/*'        \
-    --exclude '/var/tmp/*'          \
-                                    \
-    ::'{hostname}-{now}'            \
-    /etc                            \
-    /home                           \
-    /root                           \
-    /var                            \
+borg create                                   \
+    --verbose                                 \
+    --filter AME                              \
+    --list                                    \
+    --stats                                   \
+    --show-rc                                 \
+    --compression lz4                         \
+    --exclude-caches                          \
+    --exclude '/home/*/.cache/*'              \
+    --exclude '/var/cache/*'                  \
+    --exclude '/var/tmp/*'                    \
+                                              \
+    ::'{hostname}-{utcnow:%Y-%m-%dT%H:%M:%S}' \
+    '/home'                                   \
+    '/usr/local'                              \
 
 backup_exit=$?
 
@@ -48,9 +46,10 @@ borg prune                          \
     --list                          \
     --prefix '{hostname}-'          \
     --show-rc                       \
-    --keep-daily    7               \
-    --keep-weekly   4               \
-    --keep-monthly  6               \
+    --keep-daily   10               \
+    --keep-weekly  10               \
+    --keep-monthly 10               \
+    --keep-yearly  -1               \
 
 prune_exit=$?
 

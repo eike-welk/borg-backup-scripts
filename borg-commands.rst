@@ -13,7 +13,9 @@ space, and can fail gracefully. ::
 Create an archive (a backup)
 =====================================================================
 
-Create a reasonable compressed archive. Doing the initial backup takes 4 hours. Subsequent backups take only 5 minutes. The name are nicely formated date-and-time. ::
+Create a reasonable compressed archive. Doing the initial backup takes 4 hours.
+Subsequent backups take only 5 minutes. The name consists of nicely formatted
+date-and-time. ::
 
     borg create --progress --compression zlib lixie-backup-test-3::{hostname}-{utcnow:%Y-%m-%dT%H:%M:%S} /home /usr/local
 
