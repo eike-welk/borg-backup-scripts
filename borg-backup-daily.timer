@@ -1,0 +1,13 @@
+[Unit]
+Description=Run Borg backup daily.
+
+[Timer]
+# Format: [weekday] year-month-day hour:minute:second [timezone]
+OnCalendar=*-*-* 01:00:00 UTC
+
+# Store last run time. Run unit immediately after boot, when runs were skipped.
+# For example because the computer was switched off.
+#Persistent=true
+
+[Install]
+WantedBy=timers.target

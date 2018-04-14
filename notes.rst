@@ -26,3 +26,20 @@ A big part of daily backups is this `.cache` directory. The changes are from Fir
 
     .cache/*
 
+Systemd Unit Files
+=====================================================================
+
+Unit files are in various directories. The command to show these directories
+is: `systemctl show --property=UnitPath` On *openSuse* these directories are::
+
+        /etc/systemd/system 
+        /run/systemd/system 
+        /run/systemd/generator 
+        /usr/local/lib/systemd/system 
+        /usr/lib/systemd/system 
+        /lib/systemd/system 
+        /run/systemd/generator.late
+
+Units installed by the system administrator::
+
+        /etc/systemd/system/

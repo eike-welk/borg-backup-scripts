@@ -1,0 +1,10 @@
+[Unit]
+Description=Create a backup with Borg.
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/borg-backup-create.sh
+
+#[Install]
+#WantedBy=multi-user.target
+

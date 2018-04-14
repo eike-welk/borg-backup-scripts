@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Show debugging output
 #set -x
@@ -7,7 +7,7 @@
 #                     Create Backups with **Borg**
 # ----------------------------------------------------------------------------
 # This script creates backups on a local had disk. It keeps a number of past
-# backups, and deletes backups that are too old. It uses the Backup program
+# backups, and deletes backups that are too old. It uses the backup program
 # *Borg*.
 #
 # Documentation and source code for the *Borg* program itself:
@@ -30,7 +30,7 @@
 #     borg extract /backup/borg-backup/lixie-backup-1.borg/::lixie-2018-04-13T17:11:46
 #
 # ----------------------------------------------------------------------------
-# Copy the backup repository to an other (removable) disk with `rsync`. Option
+# Copy the backup repository to an other (removable) disk with *Rsync*. Option
 # `--delete` deletes file which are no longer in the source directory.
 #
 #     rsync --verbose --archive --delete            \
@@ -40,7 +40,9 @@
 # ----------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------
-# Create the backup configuration file `repo-secrets.sh`:
+# Create the backup configuration file:
+#
+#     /etc/borg-backup/repo-secrets.sh
 #
 # `repo-secrets.sh` must contain the following lines:
 # (You may uncomment these lines here to simplify the setup.)
