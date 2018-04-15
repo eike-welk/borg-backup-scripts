@@ -65,7 +65,7 @@ source /etc/borg-backup/repo-secrets.sh
 # some helpers and error handling: -------------------------------------------
 info() { printf "\n%s %s\n\n" "$( date --rfc-3339=seconds )" "$*" >&2; }
 
-trap 'echo $( date --rfc-3339=seconds ) Backup interrupted >&2; exit 2' INT TERM
+trap 'info "Backup interrupted."; exit 2' INT TERM
 
 info "Starting backup - $BORG_REPO"
 

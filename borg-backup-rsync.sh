@@ -13,7 +13,7 @@
 # Some helpers and error handling: -------------------------------------------
 info() { printf "\n%s %s\n\n" "$( date --rfc-3339=seconds )" "$*" >&2; }
 
-trap 'info Copying the repositories interrupted; exit 2' INT TERM
+trap 'info "Copying the repositories interrupted."; exit 2' INT TERM
 
 # Take various paths from `/etc/borg-backup/repo-secrets.sh`
 #     BORG_REPO='...'               # Path of the original Borg repository.
