@@ -13,6 +13,7 @@
 # Otherwise possible target paths are taken from the configuration file
 # `/etc/borg-backup/repo-secrets.sh`
 #
+# TODO: option --help
 
 # Some helpers and error handling: -------------------------------------------
 info() { printf "\n%s %s\n\n" "$( date --rfc-3339=seconds )" "$*" >&2; }
@@ -25,30 +26,41 @@ trap 'info "Copying the repositories interrupted."; exit 2' INT TERM
 #     BORG_RSYNC_TARGET_DIR_2='...' # Borg repository should be copied to.
 #     BORG_RSYNC_TARGET_DIR_3='...'
 #     BORG_RSYNC_TARGET_DIR_4='...'
-source /etc/borg-backup/repo-secrets.sh
+config_file='/etc/borg-backup/repo-secrets.sh'
+source "$config_file"
 
 # Test if $BORG_REPO is really a Borg repository. ----------------------------
 if [ -z "$BORG_REPO" ]; then
-    info 'Variable "BORG_REPO" is empty.'
+    info "Variable \"BORG_REPO\" is empty. Configuration: $config_file"
     exit -1
 fi
 
 if [ ! -d "$BORG_REPO" ]; then
-    info "\"$BORG_REPO\" must be a directory."
+    info "\"$BORG_REPO\" must be a directory. Configuration: $config_file"
     exit -1
 fi
 
 if [ ! -f "$BORG_REPO/config" ] && [ ! -f "$BORG_REPO/README" ] && \
    [ ! -f "$BORG_REPO/hints.*" ] && [ ! -f "$BORG_REPO/index.*" ] && \
    [ ! -d "$BORG_REPO/data" ]; then
-    info "\"$BORG_REPO\" is not a Borg repository."
+    info "\"$BORG_REPO\" is not a Borg repository. Configuration: $config_file"
     exit -1
 fi
-# TODO: test minimum size
+# Test minimum repo size.
+# Format: 125 /backup/foo/bar
+du_answer=(`du --summarize --block-size=1G $BORG_REPO`)
+min_size=100 #100 GB
+if [ ${du_answer[0]} -lt $min_size ]; then
+    info "Backup repository is very small. Has it been damaged?
+                          Size:          ${du_answer[0]} GiB
+                          Repository:    $BORG_REPO
+                          Configuration: $config_file"
+    exit -1
+fi
 
 # Set up the target directories. ---------------------------------------------
 if [ -z "$1" ]; then
-    # No argument. Target directories are taken from configuration file.
+    # No argument given. Taking target directories from configuration file.
     target_dirs="$BORG_RSYNC_TARGET_DIR_1 $BORG_RSYNC_TARGET_DIR_2
                  $BORG_RSYNC_TARGET_DIR_3 $BORG_RSYNC_TARGET_DIR_4"
 else
@@ -59,10 +71,10 @@ fi
 # Loop over the target directories -------------------------------------------
 for target in $target_dirs; do
     if [ ! -d "$target" ]; then
-        info "The target directory must be a directory, but it is not.
-                          Target: \"$target\""
+        info "Target directory not found: \"$target\""
     else
         info "Copying the Borg repository with 'rsync'.
+                          Config: \"$config_file\"
                           Source: \"$BORG_REPO\"
                           Target: \"$target\""
         # Copy the backup repository with rsync.
