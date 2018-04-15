@@ -6,9 +6,13 @@
 # ----------------------------------------------------------------------------
 # Duplicate Backup Directories with **Rsync**
 # ----------------------------------------------------------------------------
-# Copy the backup repository to an other (removable) disk with *Rsync*.
 #
-# TODO: Test for an argument. If an argument is given, this is the target path.
+# Intended to copy the backup repository to an other (removable) disk.
+#
+# If an argument is given, this is the target path.
+# Otherwise possible target paths are taken from the configuration file
+# `/etc/borg-backup/repo-secrets.sh`
+#
 
 # Some helpers and error handling: -------------------------------------------
 info() { printf "\n%s %s\n\n" "$( date --rfc-3339=seconds )" "$*" >&2; }
@@ -42,10 +46,17 @@ if [ ! -f "$BORG_REPO/config" ] && [ ! -f "$BORG_REPO/README" ] && \
 fi
 # TODO: test minimum size
 
-# Loop over the target directories
-target_dirs="$BORG_RSYNC_TARGET_DIR_1 $BORG_RSYNC_TARGET_DIR_2
-             $BORG_RSYNC_TARGET_DIR_3 $BORG_RSYNC_TARGET_DIR_4"
+# Set up the target directories. ---------------------------------------------
+if [ -z "$1" ]; then
+    # No argument. Target directories are taken from configuration file.
+    target_dirs="$BORG_RSYNC_TARGET_DIR_1 $BORG_RSYNC_TARGET_DIR_2
+                 $BORG_RSYNC_TARGET_DIR_3 $BORG_RSYNC_TARGET_DIR_4"
+else
+    # The supplied argument is the target directory.
+    target_dirs="$1"
+fi
 
+# Loop over the target directories -------------------------------------------
 for target in $target_dirs; do
     if [ ! -d "$target" ]; then
         info "The target directory must be a directory, but it is not.
@@ -54,7 +65,7 @@ for target in $target_dirs; do
         info "Copying the Borg repository with 'rsync'.
                           Source: \"$BORG_REPO\"
                           Target: \"$target\""
-        # Copy the backup repository with *Rsync*.
+        # Copy the backup repository with rsync.
         # Option `--delete` deletes file which are no longer in the source directory.
         rsync --verbose --archive --delete "$BORG_REPO" "$target"
     fi
