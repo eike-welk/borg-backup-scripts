@@ -5,6 +5,6 @@ Description=Create a backup with Borg.
 Type=oneshot
 ExecStart=/usr/local/bin/borg-backup-create.sh
 
-#[Install]
-#WantedBy=multi-user.target
+[Install]
+WantedBy=multi-user.target
 

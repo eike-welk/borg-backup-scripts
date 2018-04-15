@@ -1,11 +1,11 @@
 #####################################################################
-Useful Commands for the Backup Program Borg 
+Notes for the Backup Program Borg
 #####################################################################
 
 Configure the archive
 =====================================================================
 
-Add enoough free space to the Reository, so that Borg does not run out of disk
+Add enough free space to the repository, so that Borg does not run out of disk
 space, and can fail gracefully. ::
 
     borg config /path/to/repo additional_free_space 2G
@@ -43,3 +43,8 @@ is: `systemctl show --property=UnitPath` On *openSuse* these directories are::
 Units installed by the system administrator::
 
         /etc/systemd/system/
+
+When a unit file is changed, all unit files must be reloaded with::
+
+        systemctl daemon-reload
+

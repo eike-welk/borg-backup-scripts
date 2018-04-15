@@ -52,13 +52,20 @@
 #     # The repository's passphrase:
 #     export BORG_PASSPHRASE='xxxxxxxxxxx'
 #
+#     # Directories where the original Borg repository should be copied to.
+#     BORG_RSYNC_TARGET_DIR_1='/run/media/root/back-ext-4/borg-backup/'
+#     BORG_RSYNC_TARGET_DIR_2=
+#     BORG_RSYNC_TARGET_DIR_3=
+#     BORG_RSYNC_TARGET_DIR_4=
+#
 # ----------------------------------------------------------------------------
 # Set the repository location and passphrase. --------------------------------
 source /etc/borg-backup/repo-secrets.sh
 
 # some helpers and error handling: -------------------------------------------
-info() { printf "\n%s %s\n\n" "$( date )" "$*" >&2; }
-trap 'echo $( date ) Backup interrupted >&2; exit 2' INT TERM
+info() { printf "\n%s %s\n\n" "$( date --rfc-3339=seconds )" "$*" >&2; }
+
+trap 'echo $( date --rfc-3339=seconds ) Backup interrupted >&2; exit 2' INT TERM
 
 info "Starting backup - $BORG_REPO"
 
