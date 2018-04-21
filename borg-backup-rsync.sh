@@ -26,10 +26,12 @@ trap 'info "Copying the repositories interrupted."; exit 2' INT TERM
 #     BORG_RSYNC_TARGET_DIR_2='...' # Borg repository should be copied to.
 #     BORG_RSYNC_TARGET_DIR_3='...'
 #     BORG_RSYNC_TARGET_DIR_4='...'
+# TODO: If config does not exist: exit.
 config_file='/etc/borg-backup/repo-secrets.sh'
 source "$config_file"
 
 # Test if $BORG_REPO is really a Borg repository. ----------------------------
+# TODO: More intense, but more simple test. Maybe: `borg list $BORG_REPO`
 if [ -z "$BORG_REPO" ]; then
     info "Variable \"BORG_REPO\" is empty. Configuration: $config_file"
     exit -1
@@ -47,7 +49,8 @@ if [ ! -f "$BORG_REPO/config" ] && [ ! -f "$BORG_REPO/README" ] && \
     exit -1
 fi
 # Test minimum repo size.
-# Format: 125 /backup/foo/bar
+# TODO: Maybe store size, and make sure it does not decrease dramatically.
+# Result format: 125 /backup/foo/bar
 du_answer=(`du --summarize --block-size=1G $BORG_REPO`)
 min_size=100 #100 GB
 if [ ${du_answer[0]} -lt $min_size ]; then
@@ -73,6 +76,8 @@ for target in $target_dirs; do
     if [ ! -d "$target" ]; then
         info "Target directory not found: \"$target\""
     else
+        # TODO: Test if both repositories have the same fingerprint.
+        #       Or target directory is empty.
         info "Copying the Borg repository with 'rsync'.
                           Config: \"$config_file\"
                           Source: \"$BORG_REPO\"
