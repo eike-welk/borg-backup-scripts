@@ -9,10 +9,10 @@ below.
 
 * Backups are made daily, old backups are deleted. The backups are encrypted.
 
-* Only the directories `/home` and `/usr/local` are backed up, not the complete
+* Only the directories ``/home`` and ``/usr/local`` are backed up, not the complete
   system.
 
-* The script `borg-backup-rsync.sh` duplicates the backup repository on a
+* The script ``borg-backup-rsync.sh`` duplicates the backup repository on a
   removable hard disk.
 
 The scripts' Github project:
@@ -28,7 +28,7 @@ To install, run the script::
     install.sh
 
 The necessary files will be copied to appropriate directories below
-`/usr/local`.
+``/usr/local``.
 
 ===============================================================================
 The Scripts
@@ -37,7 +37,7 @@ The Scripts
 borg-backup-init.sh
 -------------------------------------------------------------------------------
 
-`borg-backup-init.sh` creates a new backup repository in the current directory,
+``borg-backup-init.sh`` creates a new backup repository in the current directory,
 and sets up the necessary configuration files. It asks the user for a
 repository name, a password, and a path to duplicate the backup repository.
 
@@ -45,7 +45,7 @@ repository name, a password, and a path to duplicate the backup repository.
 borg-backup-create.sh
 -------------------------------------------------------------------------------
 
-`borg-backup-create.sh` creates a backup of `/home` and `/usr/local`.  The
+``borg-backup-create.sh`` creates a backup of ``/home`` and ``/usr/local``.  The
 backups are stored in the backup repository, older backups are deleted, the
 last yearly backup is kept indefinitely.
 
@@ -56,7 +56,7 @@ necessary.
 borg-backup-rsync.sh
 -------------------------------------------------------------------------------
 
-`borg-backup-rsync.sh` duplicates the repository to other directories with
+``borg-backup-rsync.sh`` duplicates the repository to other directories with
 *rsync*. Intended for removable hard disks. 
 
 Files that were deleted in the repository, are removed from the duplicates too.
