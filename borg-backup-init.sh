@@ -14,7 +14,7 @@
 trap 'printf "\n\"borg-backup-init.sh\" was interrupted.\n"; exit 2' INT TERM
 
 repo_dir="$PWD"
-config_dir='/etc/borg-backup-test'
+config_dir='/etc/borg-backup'
 bin_dir='/usr/local/bin'
 
 # Test: We need root permissions for nearly everything in this script.
@@ -99,7 +99,7 @@ echo "Creating mount point (\"mnt/\") for restoring files, if necessary."
 echo
 mkdir -p "${repo_dir}/mnt"
 
-# TODO: Initialize repository. ----------------------------------------
+# Initialize repository. ----------------------------------------
 # Set the repository location and passphrase.
 source "$secrets_path"
 export BORG_REPO
@@ -109,18 +109,16 @@ if [ ! -e "$BORG_REPO" ]; then
     borg init --encryption=repokey
 else
     echo "Error: A file or directory already exists at the repository's location:"
-    echo
     echo "    $BORG_REPO"
-    echo
-    echo "Remove or rename it to create a new Borg repository."
+    echo "Rename / delete it to create a new Borg repository."
 fi
+echo
 
-# TODO: Start timer
-#systemctl daemon-reload
-#
-#systemctl enable
-#systemctl start
-#
-#systemctl stop
-#systemctl disable
+# Start Systemd timer ---------------------------------------------------------
+# Reload all Systemd unit files.
+systemctl daemon-reload
+
+# Enable daily backups and also start them.
+systemctl enable borg-backup-daily.timer
+systemctl start borg-backup-daily.timer
 

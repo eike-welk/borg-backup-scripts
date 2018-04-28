@@ -29,11 +29,13 @@ Restore a Lost File
 To restore a small amount of lost data:
 
 1. Mount the backup repository with:
-   `borg mount name-of-the-repository directory-for-mount`.
+   `borg mount name-of-the-repository mnt/`.
 
-2. Browse the repository at the directory where it is mounted, and copy the
-   lost files. Accessing the backup this way is relatively slow, and graphical
-   file managers can appear to hang from time to time.
+2. Browse the repository at the directory where it is mounted. (For example at
+   `mnt/` in this directory.) Copy the lost files. 
+   
+   Accessing the backup this way is relatively slow, and graphical file
+   managers can appear to hang from time to time.
 
 3. Detach (unmount) the backup repository from the file system with:
    `borg umount directory-for-mount`.
@@ -46,8 +48,8 @@ To duplicate the repository on an external hard disk:
 1. Mount the external hard disk to the configured directory.
 2. Run `borg-backup-rsync.sh`.
 
-The external hard disk must be configured in
-`/etc/borg-backup/repo-secrets.sh`.
+The external hard disk(s) must be configured in
+`/etc/borg-backup/rsync-config.sh`.
 
 
 ===============================================================================

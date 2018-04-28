@@ -7,6 +7,7 @@
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 
 # Install scripts and data.
+mkdir -p /usr/local/bin
 install borg-backup-create.sh   /usr/local/bin
 install borg-backup-init.sh     /usr/local/bin
 install borg-backup-rsync.sh    /usr/local/bin
@@ -21,6 +22,6 @@ cp borg-backup-daily.timer    /usr/local/lib/systemd/system
 #cp borg-backup-daily.service  /etc/systemd/system/
 #cp borg-backup-daily.timer    /etc/systemd/system/
 
-# Reload all Systemd units.
+# Reload all Systemd unit files.
 systemctl daemon-reload
 
