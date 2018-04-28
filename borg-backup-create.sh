@@ -10,6 +10,9 @@
 # backups, and deletes backups that are too old. It uses the backup program
 # *Borg*.
 #
+# The Github project of this script:
+#   https://github.com/eike-welk/borg-backup-scripts
+#
 # Documentation and source code for the *Borg* program itself:
 #     https://borgbackup.readthedocs.io/en/stable/index.html
 #     https://github.com/borgbackup/borg/
@@ -48,9 +51,9 @@
 # (You may uncomment these lines here to simplify the setup.)
 #
 #     # The location of the backup repository.
-#     export BORG_REPO='/backup/borg-backup/lixie-backup-1.borg'
+#     BORG_REPO='/backup/borg-backup/lixie-backup-1.borg'
 #     # The repository's passphrase:
-#     export BORG_PASSPHRASE='xxxxxxxxxxx'
+#     BORG_PASSPHRASE='xxxxxxxxxxx'
 #
 #     # Directories where the original Borg repository should be copied to.
 #     BORG_RSYNC_TARGET_DIR_1='/run/media/root/back-ext-4/borg-backup/'
@@ -61,6 +64,8 @@
 # ----------------------------------------------------------------------------
 # Set the repository location and passphrase. --------------------------------
 source /etc/borg-backup/repo-secrets.sh
+export $BORG_REPO
+export $BORG_PASSPHRASE
 
 # some helpers and error handling: -------------------------------------------
 info() { printf "\n%s %s\n\n" "$( date --rfc-3339=seconds )" "$*" >&2; }

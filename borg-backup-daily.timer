@@ -3,7 +3,7 @@ Description=Run Borg backup daily.
 
 [Timer]
 # Format: [weekday] year-month-day hour:minute:second [timezone]
-OnCalendar=*-*-* 01:00:00
+OnCalendar=*-*-* 23:45:00
 
 # Store last run time. Run unit immediately after boot, when runs were skipped.
 # For example because the computer was switched off.

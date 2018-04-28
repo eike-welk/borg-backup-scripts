@@ -9,11 +9,14 @@ below.
 * Only the directories `/home` and `/usr/local` are backed up, not the complete
   system.
 
-* There is a script to duplicate the backup repository on a removable hard
-  disk.
+* The script `borg-backup-rsync.sh` duplicates the backup repository on a
+  removable hard disk.
 
-TODO: Link to Github project.
+The Github project of this script:
 
+    https://github.com/eike-welk/borg-backup-scripts
+
+===============================================================================
 Daily Usage
 ===============================================================================
 
@@ -35,7 +38,7 @@ To restore a small amount of lost data:
 3. Detach (unmount) the backup repository from the file system with:
    `borg umount directory-for-mount`.
 
-Duplicate the Repository on an External Hard Disk
+Duplicate the Repository
 -------------------------------------------------------------------------------
 
 To duplicate the repository on an external hard disk:
@@ -47,6 +50,7 @@ The external hard disk must be configured in
 `/etc/borg-backup/repo-secrets.sh`.
 
 
+===============================================================================
 The Scripts
 ===============================================================================
 
@@ -90,6 +94,7 @@ necessary for it: A service and a timer. Both files are in
     file of her same name.
 
 
+===============================================================================
 Borg
 ===============================================================================
 
@@ -117,6 +122,7 @@ directory.
     borg extract /backup/borg-backup/lixie-backup-1.borg/::lixie-2018-04-13T17:11:46
 
 
+===============================================================================
 Rsync
 ===============================================================================
 Copy the backup repository to an other (removable) disk with *Rsync*. Option
@@ -127,6 +133,7 @@ Copy the backup repository to an other (removable) disk with *Rsync*. Option
          /path/to/other/disk                      \
 
 
+===============================================================================
 Systemd
 ===============================================================================
 systemctl daemon-reload
