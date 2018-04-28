@@ -48,6 +48,7 @@ BORG_REPO="$borg_repo_path"
 # The repository's passphrase:
 BORG_PASSPHRASE="$repo_passphrase"
 EOF
+    chmod go-rwx "$secrets_path"
 
 else
     echo "Repository configuration already exists:"

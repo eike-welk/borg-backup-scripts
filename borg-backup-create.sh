@@ -102,6 +102,7 @@ borg prune                          \
     --list                          \
     --prefix '{hostname}-'          \
     --show-rc                       \
+    --keep-within  2d               \
     --keep-daily   10               \
     --keep-weekly  10               \
     --keep-monthly 10               \
