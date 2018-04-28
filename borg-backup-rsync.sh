@@ -49,13 +49,13 @@ info() { printf "\n%s %s\n\n" "$( date --rfc-3339=seconds )" "$*" >&2; }
 trap 'info "Copying the repositories interrupted."; exit 2' INT TERM
 
 # Set configuration values. ---------------------------------------------------
-# Paths of the duplicate Borg repositories
+# Set paths of the duplicate Borg repositories
 config_file='/etc/borg-backup/rsync-config.sh'
 if [ ! -f "$config_file" ]; then
     info "Error: Rsync configuration does not exist: \"${config_file}\""
     exit 2
 fi
-# Repository location and passphrase.
+# Set repository location and passphrase.
 borg_secrets_file='/etc/borg-backup/repo-secrets.sh'
 if [ ! -f "$borg_secrets_file" ]; then
     info "Error: Borg configuration does not exist: \"${borg_secrets_file}\""
@@ -67,34 +67,31 @@ export BORG_REPO
 export BORG_PASSPHRASE
 
 # Test if $BORG_REPO is really a Borg repository. ----------------------------
-# TODO: More intense, but more simple test. Maybe: `borg list $BORG_REPO`
 if [ -z "$BORG_REPO" ]; then
-    info "Variable \"BORG_REPO\" is empty. Configuration: $config_file"
-    exit -1
+    info "Error: Variable \"BORG_REPO\" is empty.
+                          Configuration: $config_file"
+    exit 1
 fi
 
-if [ ! -d "$BORG_REPO" ]; then
-    info "\"$BORG_REPO\" must be a directory. Configuration: $config_file"
-    exit -1
+# Test repository only with `borg list` because `borg check` takes too long.
+borg list > /dev/null
+if (( $? != 0 )); then
+    info "Error: \"$BORG_REPO\" is not a functioning Borg repository.
+                          Configuration: $config_file"
+    exit 1
 fi
 
-if [ ! -f "$BORG_REPO/config" ] && [ ! -f "$BORG_REPO/README" ] && \
-   [ ! -f "$BORG_REPO/hints.*" ] && [ ! -f "$BORG_REPO/index.*" ] && \
-   [ ! -d "$BORG_REPO/data" ]; then
-    info "\"$BORG_REPO\" is not a Borg repository. Configuration: $config_file"
-    exit -1
-fi
 # Test minimum repo size.
 # TODO: Maybe store size, and make sure it does not decrease dramatically.
 # Result format: 125 /backup/foo/bar
 du_answer=(`du --summarize --block-size=1G $BORG_REPO`)
 min_size=100 #100 GB
 if [ ${du_answer[0]} -lt $min_size ]; then
-    info "Backup repository is very small. Has it been damaged?
+    info "Error: Backup repository is very small. Has it been damaged?
                           Size:          ${du_answer[0]} GiB
                           Repository:    $BORG_REPO
                           Configuration: $config_file"
-    exit -1
+    exit 1
 fi
 
 # Set up the target directories. ---------------------------------------------
