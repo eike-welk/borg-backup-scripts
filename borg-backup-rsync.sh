@@ -14,21 +14,57 @@
 # `/etc/borg-backup/repo-secrets.sh`
 #
 # TODO: option --help
+#
+# ----------------------------------------------------------------------------
+# The rsync configuration file:
+#
+#     /etc/borg-backup/rsync-config.sh
+#
+# `rsync-config.sh` must contain the following lines:
+#
+#     # Directories where the original Borg repository should be copied to.
+#     BORG_RSYNC_TARGET_DIR_1='/run/media/root/back-ext-4/borg-backup/'
+#     BORG_RSYNC_TARGET_DIR_2=''
+#     BORG_RSYNC_TARGET_DIR_3=''
+#     BORG_RSYNC_TARGET_DIR_4=''
+#
+# ----------------------------------------------------------------------------
+# The backup configuration file:
+#
+#     /etc/borg-backup/repo-secrets.sh
+#
+# `repo-secrets.sh` must contain the following lines:
+#
+#     # The location of the backup repository.
+#     BORG_REPO='/backup/borg-backup/lixie-backup-1.borg'
+#     # The repository's passphrase:
+#     BORG_PASSPHRASE='xxxxxxxxxxx'
+#
+# ----------------------------------------------------------------------------
 
-# Some helpers and error handling: -------------------------------------------
+# Print messages to standard output with date and time.
 info() { printf "\n%s %s\n\n" "$( date --rfc-3339=seconds )" "$*" >&2; }
 
+# Exit the whole script when Ctrl-C is pressed.
 trap 'info "Copying the repositories interrupted."; exit 2' INT TERM
 
-# Take various paths from `/etc/borg-backup/repo-secrets.sh`
-#     BORG_REPO='...'               # Path of the original Borg repository.
-#     BORG_RSYNC_TARGET_DIR_1='...' # Directories where the original
-#     BORG_RSYNC_TARGET_DIR_2='...' # Borg repository should be copied to.
-#     BORG_RSYNC_TARGET_DIR_3='...'
-#     BORG_RSYNC_TARGET_DIR_4='...'
-# TODO: If config does not exist: exit.
-config_file='/etc/borg-backup/repo-secrets.sh'
+# Set configuration values. ---------------------------------------------------
+# Paths of the duplicate Borg repositories
+config_file='/etc/borg-backup/rsync-config.sh'
+if [ ! -f "$config_file" ]; then
+    info "Error: Rsync configuration does not exist: \"${config_file}\""
+    exit 2
+fi
+# Repository location and passphrase.
+borg_secrets_file='/etc/borg-backup/repo-secrets.sh'
+if [ ! -f "$borg_secrets_file" ]; then
+    info "Error: Borg configuration does not exist: \"${borg_secrets_file}\""
+    exit 2
+fi
 source "$config_file"
+source "$borg_secrets_file"
+export BORG_REPO
+export BORG_PASSPHRASE
 
 # Test if $BORG_REPO is really a Borg repository. ----------------------------
 # TODO: More intense, but more simple test. Maybe: `borg list $BORG_REPO`

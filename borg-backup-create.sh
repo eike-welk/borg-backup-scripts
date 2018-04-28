@@ -38,34 +38,25 @@
 #
 #     rsync --verbose --archive --delete            \
 #          /backup/borg-backup/lixie-backup-1.borg  \
-#          /path/to/other/disk                      \
+#          /run/media/root/back-ext-4/borg-backup
 #
 # ----------------------------------------------------------------------------
-
-# ----------------------------------------------------------------------------
-# Create the backup configuration file:
+# The backup configuration file:
 #
 #     /etc/borg-backup/repo-secrets.sh
 #
 # `repo-secrets.sh` must contain the following lines:
-# (You may uncomment these lines here to simplify the setup.)
 #
 #     # The location of the backup repository.
 #     BORG_REPO='/backup/borg-backup/lixie-backup-1.borg'
 #     # The repository's passphrase:
 #     BORG_PASSPHRASE='xxxxxxxxxxx'
 #
-#     # Directories where the original Borg repository should be copied to.
-#     BORG_RSYNC_TARGET_DIR_1='/run/media/root/back-ext-4/borg-backup/'
-#     BORG_RSYNC_TARGET_DIR_2=
-#     BORG_RSYNC_TARGET_DIR_3=
-#     BORG_RSYNC_TARGET_DIR_4=
-#
 # ----------------------------------------------------------------------------
 # Set the repository location and passphrase. --------------------------------
 source /etc/borg-backup/repo-secrets.sh
-export $BORG_REPO
-export $BORG_PASSPHRASE
+export BORG_REPO
+export BORG_PASSPHRASE
 
 # some helpers and error handling: -------------------------------------------
 info() { printf "\n%s %s\n\n" "$( date --rfc-3339=seconds )" "$*" >&2; }

@@ -96,6 +96,7 @@ echo
 
 # Create restoration mount point. ---------------------------------------------
 echo "Creating mount point (\"mnt/\") for restoring files, if necessary."
+echo
 mkdir -p "${repo_dir}/mnt"
 
 # TODO: Initialize repository. ----------------------------------------
@@ -103,7 +104,23 @@ mkdir -p "${repo_dir}/mnt"
 source "$secrets_path"
 export BORG_REPO
 export BORG_PASSPHRASE
-#     borg init --encryption=repokey /backup/borg-backup/lixie-backup-1.borg
+if [ ! -e "$BORG_REPO" ]; then
+    echo "Creating Borg repository."
+    borg init --encryption=repokey
+else
+    echo "Error: A file or directory already exists at the repository's location:"
+    echo
+    echo "    $BORG_REPO"
+    echo
+    echo "Remove or rename it to create a new Borg repository."
+fi
 
 # TODO: Start timer
+#systemctl daemon-reload
+#
+#systemctl enable
+#systemctl start
+#
+#systemctl stop
+#systemctl disable
 

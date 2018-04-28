@@ -20,3 +20,7 @@ cp borg-backup-daily.timer    /usr/local/lib/systemd/system
 ## Copy into standard Systemd directory instead?
 #cp borg-backup-daily.service  /etc/systemd/system/
 #cp borg-backup-daily.timer    /etc/systemd/system/
+
+# Reload all Systemd units.
+systemctl daemon-reload
+
