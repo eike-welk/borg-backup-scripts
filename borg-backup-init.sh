@@ -55,6 +55,9 @@ else
     echo "    $secrets_path"
     echo "Edit / rename / delete this file if you want to use a different"
     echo "repository name or password."
+
+    # TODO: Test if $PWD is the correct directory: This script must be run
+    #       in the directory where the backup repository is.
 fi
 echo
 

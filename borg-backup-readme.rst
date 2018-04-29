@@ -8,21 +8,21 @@ below.
 
 * Backups are made daily, old backups are deleted. The backups are encrypted.
 
-* Only the directories `/home` and `/usr/local` are backed up, not the complete
+* Only the directories ``/home`` and ``/usr/local`` are backed up, not the complete
   system.
 
-* The script `borg-backup-rsync.sh` duplicates the backup repository on a
-  removable hard disk.
+* The backup repository can be duplicated on a removable or external hard disk.
 
 The scripts' Github project:
 
     https://github.com/eike-welk/borg-backup-scripts
 
+
 ===============================================================================
 Daily Usage
 ===============================================================================
 
-A backup is created daily at night with the script `borg-backup-create.sh`. It
+A backup is created daily at night with the script ``borg-backup-create.sh``. It
 is controlled by a *Systemd* timer.
 
 Restore a Lost File
@@ -31,17 +31,18 @@ Restore a Lost File
 To restore a small amount of lost data:
 
 1. Mount the backup repository with:
-   `borg mount name-of-the-repository mnt/`. You are asked for the repository's
-   password.
+   ``borg mount name-of-the-repository mnt/``. You are asked for the repository's
+   password. (There is a directory ``mnt/`` in the backup directory for this
+   purpose.)
 
 2. Browse the repository at the directory where it is mounted. Copy the lost
-   files. (There is a directory `mnt/` here for this purpose.)
+   files.
    
-   Accessing the backup this way is relatively slow, and graphical file
-   managers can appear to hang from time to time.
+   Accessing the backup this way is relatively slow, graphical file managers
+   can appear to hang from time to time.
 
 3. Detach (unmount) the backup repository from the file system with:
-   `borg umount directory-for-mount`.
+   ``borg umount directory-for-mount``.
 
 Duplicate the Repository
 -------------------------------------------------------------------------------
@@ -49,23 +50,23 @@ Duplicate the Repository
 To duplicate the repository on an external hard disk:
 
 1. Mount the external hard disk to the configured directory.
-2. Run `borg-backup-rsync.sh`.
+2. Run ``borg-backup-rsync.sh``.
 
 The external hard disk(s) must be configured in
-`/etc/borg-backup/rsync-config.sh`.
+``/etc/borg-backup/rsync-config.sh``.
 
 
 ===============================================================================
 The Scripts
 ===============================================================================
 
-The scripts are installed in `/usr/local/bin`. They must be run as *root*.
+The scripts are installed in ``/usr/local/bin``. They must be run as *root*.
 
 
 borg-backup-init.sh
 -------------------------------------------------------------------------------
 
-`borg-backup-init.sh` creates a new backup repository in the current directory,
+``borg-backup-init.sh`` creates a new backup repository in the current directory,
 and sets up the necessary configuration files. It asks the user for a
 repository name, a password, and a path to duplicate the backup repository.
 
@@ -73,7 +74,7 @@ repository name, a password, and a path to duplicate the backup repository.
 borg-backup-create.sh
 -------------------------------------------------------------------------------
 
-`borg-backup-create.sh` creates a backup of `/home` and `/usr/local`.  The
+``borg-backup-create.sh`` creates a backup of ``/home`` and ``/usr/local``.  The
 backups are stored in the backup repository, older backups are deleted, the
 last yearly backup is kept indefinitely.
 
@@ -84,7 +85,7 @@ necessary.
 borg-backup-rsync.sh
 -------------------------------------------------------------------------------
 
-`borg-backup-rsync.sh` duplicates the repository to other directories with
+``borg-backup-rsync.sh`` duplicates the repository to other directories with
 *rsync*. Intended for removable hard disks. 
 
 Files that were deleted in the repository, are removed from the duplicates too.
@@ -101,30 +102,43 @@ backups, and deletes backups that are too old. It uses the backup program
 *Borg*.
 
 Documentation and source code for the *Borg* program itself:
+
     https://borgbackup.readthedocs.io/en/stable/index.html
     https://github.com/borgbackup/borg/
 
--------------------------------------------------------------------------------
-Create new backup repositories with the following command:
 
-    borg init --encryption=repokey /backup/borg-backup/lixie-backup-1.borg
-
+List the Repository's Contents:
 -------------------------------------------------------------------------------
-List the repository's contents:
+
+To list the repository's contents run::
 
     borg list /backup/borg-backup/lixie-backup-1.borg
 
-Restore an archive: The restored files are created in the current working
-directory.
+
+Restore an Archive
+-------------------------------------------------------------------------------
+
+To restore an entire archive run the following command::
 
     borg extract /backup/borg-backup/lixie-backup-1.borg/::lixie-2018-04-13T17:11:46
+
+The restored files are created in the current working directory.
+
+
+Create a New Repository
+-------------------------------------------------------------------------------
+
+Create new backup repositories with the following command::
+
+    borg init --encryption=repokey name-of-the-repository
 
 
 ===============================================================================
 Rsync
 ===============================================================================
+
 Copy the backup repository to an other (removable) disk with *Rsync*. Option
-`--delete` deletes file which are no longer in the source directory.
+``--delete`` deletes file which are no longer in the source directory.
 
     rsync --verbose --archive --delete            \
          /backup/borg-backup/lixie-backup-1.borg  \
@@ -134,26 +148,70 @@ Copy the backup repository to an other (removable) disk with *Rsync*. Option
 ===============================================================================
 Systemd
 ===============================================================================
-systemctl daemon-reload
 
-systemctl enable
-systemctl start
+This project uses *Systemd* to create daily backups, instead of *Cron*.
+It uses a feature of *Systemd* called *timer*.
 
-systemctl stop
-systemctl disable
+The documentation for *Systemd* is quite extensive, but it is very hard to get
+started.
+
+    https://www.freedesktop.org/wiki/Software/systemd/
+
+The documentation for *units* links to pages for *services* and *timers*. 
+These are quite helpful, if you want to write your own unit files.
+
+    https://www.freedesktop.org/software/systemd/man/systemd.unit.html
+
+
+Commands
+-------------------------------------------------------------------------------
+
+*Systemd* is controlled with the program ``systemctl``. It has a good tab
+completion (at least on openSuse and Debian), so that it can be explored fairly
+well.
+
+When unit files have been edited, they need to be reloaded with::
+
+    systemctl daemon-reload
+
+To see the current timers, and their state, use::
+
+    systemctl list-timers
+
+More detailed information is shown by the ``status`` subcommand. It is
+especially useful for a *service* because it shows the last few log entries. ::
+
+    systemctl status borg-backup-daily.service
+
+Units need to be enabled and started, to be loaded at boot time and to run. 
+However only ``borg-backup-daily.timer`` needs to be enabled and started. 
+The *service* depends on the *timer* and is processed automatically. ::
+
+    systemctl enable borg-backup-daily.timer
+    systemctl start borg-backup-daily.timer
+
+To stop the *timer* and disable it from being loaded at boot time run::
+
+    systemctl stop borg-backup-daily.timer
+    systemctl disable borg-backup-daily.timer
+
+To access *Systemd's* log use ``journalctl``. Option ``-u`` filter for *units*.
+To see the (large amount of) log messages from the backup script use::
+
+    journalctl -u borg-backup-daily.service
+
 
 Systemd Unit Files
 -------------------------------------------------------------------------------
 
 Backups are run daily by *Systemd* instead of *Cron*. Two unit files are
-necessary for it: A service and a timer. Both files are in
-`/usr/local/lib/systemd/system`.
+necessary for it: A *service* and a *timer*. Both files are in
+``/usr/local/lib/systemd/system``.
 
-`borg-backup-daily.service`
-    This unit file runs the script `borg-backup-create.sh`.
+``borg-backup-daily.service``
+    This unit file runs the script ``borg-backup-create.sh``.
 
-`borg-backup-daily.timer`
-    The timer that is activated daily. Each timer corresponds to a `service`
+``borg-backup-daily.timer``
+    The timer that is activated daily. Each timer corresponds to a ``service``
     file of her same name.
-
 

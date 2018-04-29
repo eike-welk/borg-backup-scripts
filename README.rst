@@ -3,32 +3,91 @@
                           Backups with **Borg**
 ###############################################################################
 
-This directory contains a backup repository made with the program *Borg*.
-This *Borg* repository is used with additional scripts which are described
-below.
+This is a collection of scripts and documentation to create daily backups of a
+personal computer with the program *Borg*. The scripts work only on Linux.
 
 * Backups are made daily, old backups are deleted. The backups are encrypted.
 
-* Only the directories ``/home`` and ``/usr/local`` are backed up, not the complete
-  system.
+* Only the directories ``/home`` and ``/usr/local`` are backed up, not the
+  complete system.
 
-* The script ``borg-backup-rsync.sh`` duplicates the backup repository on a
-  removable hard disk.
+* The backup repository can be duplicated on a removable or external hard disk.
 
-The scripts' Github project:
+Documentation for the *Borg* program:
+
+    https://borgbackup.readthedocs.io/en/stable/index.html
+
+This collection of scripts is developed on Github:
 
     https://github.com/eike-welk/borg-backup-scripts
 
+
 ===============================================================================
-Installing
+Installation
 ===============================================================================
 
-To install, run the script::
+To install, become *root*, and run the script::
 
     install.sh
 
-The necessary files will be copied to appropriate directories below
-``/usr/local``.
+
+===============================================================================
+Usage
+===============================================================================
+
+Obviously you must be *root* for everything described here.
+
+
+Create a new repository
+-------------------------------------------------------------------------------
+
+Create the directory, where you want to keep your backup repository. For
+example: ``/backups/borg-backup``, ``/srv/borg-backup`` or
+``/var/lib/borg-backup``.
+
+Change into this directory, and run ``borg-backup-init.sh``. The script asks
+you for a repository name, a password, and a path to duplicate the backup
+repository.
+
+The script creates a new backup repository (in the current directory), creates
+the configuration files, beautifies the backup directory with a README and a
+restoration mount point, and starts the timer for the daily backups.
+
+A backup is created every night with the script ``borg-backup-create.sh``. It
+is controlled by a *Systemd* timer.
+
+
+Restore a Lost File
+-------------------------------------------------------------------------------
+
+To restore a small amount of lost data:
+
+1. Mount the backup repository with:
+   ``borg mount name-of-the-repository mnt/``. You are asked for the repository's
+   password. (There is a directory ``mnt/`` in the backup directory for this
+   purpose.)
+
+2. Browse the repository at the directory where it is mounted. Copy the lost
+   files.
+   
+   Accessing the backup this way is relatively slow, graphical file managers
+   can appear to hang from time to time.
+
+3. Detach (unmount) the backup repository from the file system with:
+   ``borg umount directory-for-mount``.
+
+
+Duplicate the Repository
+-------------------------------------------------------------------------------
+
+To duplicate the repository on an external hard disk:
+
+1. Mount the external hard disk to the configured directory.
+2. Run ``borg-backup-rsync.sh``.
+
+The external hard disk(s) must be configured in
+``/etc/borg-backup/rsync-config.sh``.
+
 
 ===============================================================================
 The Scripts
