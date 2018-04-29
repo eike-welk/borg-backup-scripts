@@ -105,19 +105,24 @@ else
 fi
 
 # Loop over the target directories -------------------------------------------
-for target in $target_dirs; do
-    if [ ! -d "$target" ]; then
-        info "Target directory not found: \"$target\""
+source_path="$BORG_REPO"
+repo_base_name=$(basename $source_path)
+
+for target_1dir in $target_dirs; do
+    if [ ! -d "$target_1dir" ]; then
+        info "Target directory not found. Skipping: \"$target_1dir\""
     else
         # TODO: Test if both repositories have the same fingerprint.
-        #       Or target directory is empty.
+        #       Or if target repository does not exist.
+        target_path="$target_1dir/$repo_base_name"
         info "Copying the Borg repository with 'rsync'.
                           Config: \"$config_file\"
-                          Source: \"$BORG_REPO\"
-                          Target: \"$target\""
+                          Source: \"$source_path\"
+                          Target: \"$target_path\""
         # Copy the backup repository with rsync.
         # Option `--delete` deletes file which are no longer in the source directory.
-        rsync --verbose --archive --delete "$BORG_REPO" "$target"
+        # trailing slash ("/") at source path: Copy contents, not directory itself.
+        rsync --verbose --archive --delete "$source_path/" "$target_path"
     fi
 done
 
