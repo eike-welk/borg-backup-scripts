@@ -19,11 +19,14 @@ The scripts' Github project:
 
 
 ===============================================================================
-Daily Usage
+Usage
 ===============================================================================
 
 A backup is created daily at night with the script ``borg-backup-create.sh``. It
 is controlled by a *Systemd* timer.
+
+Obviously you must be *root* for everything described here.
+
 
 Restore a Lost File
 -------------------------------------------------------------------------------
@@ -44,6 +47,7 @@ To restore a small amount of lost data:
 3. Detach (unmount) the backup repository from the file system with:
    ``borg umount directory-for-mount``.
 
+
 Duplicate the Repository
 -------------------------------------------------------------------------------
 
@@ -54,6 +58,25 @@ To duplicate the repository on an external hard disk:
 
 The external hard disk(s) must be configured in
 ``/etc/borg-backup/rsync-config.sh``.
+
+
+Create a new repository
+-------------------------------------------------------------------------------
+
+Create the directory, where you want to keep your backup repository. For
+example: ``/backups/borg-backup``, ``/srv/borg-backup`` or
+``/var/lib/borg-backup``.
+
+Change into this directory, and run ``borg-backup-init.sh``. The script asks
+you for a repository name, a password, and a path to duplicate the backup
+repository.
+
+The script creates a new backup repository (in the current directory), creates
+the configuration files, beautifies the backup directory with a README and a
+restoration mount point, and starts the timer for the daily backups.
+
+A backup is created every night with the script ``borg-backup-create.sh``. It
+is controlled by a *Systemd* timer.
 
 
 ===============================================================================
@@ -136,6 +159,10 @@ Create new backup repositories with the following command::
 ===============================================================================
 Rsync
 ===============================================================================
+
+The documentation for *Rsync* is here:
+
+    https://rsync.samba.org/documentation.html
 
 Copy the backup repository to an other (removable) disk with *Rsync*. Option
 ``--delete`` deletes file which are no longer in the source directory.

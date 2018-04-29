@@ -3,7 +3,7 @@
                           Backups with **Borg**
 ###############################################################################
 
-This is a collection of scripts and documentation to create daily backups of a
+This is a collection of scripts and documentation, to create daily backups of a
 personal computer with the program *Borg*. The scripts work only on Linux.
 
 * Backups are made daily, old backups are deleted. The backups are encrypted.
