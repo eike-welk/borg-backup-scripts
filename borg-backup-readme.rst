@@ -157,22 +157,6 @@ Create new backup repositories with the following command::
 
 
 ===============================================================================
-Rsync
-===============================================================================
-
-The documentation for *Rsync* is here:
-
-    https://rsync.samba.org/documentation.html
-
-Copy the backup repository to an other (removable) disk with *Rsync*. Option
-``--delete`` deletes file which are no longer in the source directory.
-
-    rsync --verbose --archive --delete            \
-         /backup/borg-backup/lixie-backup-1.borg  \
-         /path/to/other/disk                      \
-
-
-===============================================================================
 Systemd
 ===============================================================================
 
@@ -241,4 +225,21 @@ necessary for it: A *service* and a *timer*. Both files are in
 ``borg-backup-daily.timer``
     The timer that is activated daily. Each timer corresponds to a ``service``
     file of her same name.
+
+
+===============================================================================
+Rsync
+===============================================================================
+
+The documentation for *Rsync* is here:
+
+    https://rsync.samba.org/documentation.html
+
+Copy the backup repository to an other (removable) disk with *Rsync*. Option
+``--delete`` deletes file which are no longer in the source directory. ::
+
+    rsync --verbose --archive --delete            \
+         /backup/borg-backup/lixie-backup-1       \
+         /path/to/other/disk                      \
+
 
