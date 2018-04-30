@@ -104,25 +104,58 @@ else
     target_dirs="$1"
 fi
 
-# Loop over the target directories -------------------------------------------
-source_path="$BORG_REPO"
-repo_base_name=$(basename $source_path)
+# A function that gets a repository's fingerprint.
+# The parameter is the repository's path.
+function get_repository_id {
+    local repo_path="$1"
+    local config_path="$repo_path/config"
+    if [ -f "$config_path" ]; then
+        # Parse ini file with awk. Get the value of "id".
+        # See: https://stackoverflow.com/q/6318809
+        local repo_id=$(awk -F "=" '/id/ {print $2}' "$config_path" \
+                       | tr -d ' ')
+        echo "$repo_id"
+        return 0
+    else
+        echo ''
+        return 1
+    fi
+}
+
+# Loop over the target directories --------------------------------------------
+repo_path="$BORG_REPO"
+repo_base_name=$(basename $repo_path)
+repo_id=$(get_repository_id "$repo_path")
 
 for target_1dir in $target_dirs; do
+    target_path="$target_1dir/$repo_base_name"
+    # Skip external disks that are currently not connected.
     if [ ! -d "$target_1dir" ]; then
         info "Target directory not found. Skipping: \"$target_1dir\""
-    else
-        # TODO: Test if both repositories have the same fingerprint.
-        #       Or if target repository does not exist.
-        target_path="$target_1dir/$repo_base_name"
-        info "Copying the Borg repository with 'rsync'.
+    # The target repository exists, but it has a different ID.
+    elif [ -e "$target_path" ] \
+      && [ "$repo_id" != $(get_repository_id "$target_path") ]; then
+        info "Error: Repository ID of source and target don't match.
+                          Config: \"$borg_secrets_file\"
                           Config: \"$config_file\"
-                          Source: \"$source_path\"
+                          Source: \"$repo_path\"
+                          Target: \"$target_path\""
+        info "Stopping."
+        exit 1
+    # The target repository doesn't exist, or source and target have the same ID
+    else
+        info "Copying the Borg repository with 'rsync'.
+                          Source: \"$repo_path\"
                           Target: \"$target_path\""
         # Copy the backup repository with rsync.
+
         # Option `--delete` deletes file which are no longer in the source directory.
-        # trailing slash ("/") at source path: Copy contents, not directory itself.
-        rsync --verbose --archive --delete "$source_path/" "$target_path"
+
+        # Trailing "/" in source path: Copy contents, not directory itself.
+        # Rationale: Always add "/" to get the same behavior, whether 
+        # $BORG_REPO contains a trailing "/" or not.
+
+        rsync --verbose --archive --delete "$repo_path/" "$target_path"
     fi
 done
 
