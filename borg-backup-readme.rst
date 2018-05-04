@@ -40,8 +40,8 @@ To restore a small amount of lost data:
 
 2. Browse the repository at the directory where it is mounted. Copy the lost
    files.
-   
-   Accessing the backup this way is relatively slow, graphical file managers
+
+   Accessing a backup this way is relatively slow, graphical file managers
    can appear to hang from time to time.
 
 3. Detach (unmount) the backup repository from the file system with:
@@ -71,12 +71,12 @@ Change into this directory, and run ``borg-backup-init.sh``. The script asks
 you for a repository name, a password, and a path to duplicate the backup
 repository.
 
-The script creates a new backup repository (in the current directory), creates
-the configuration files, beautifies the backup directory with a README and a
-restoration mount point, and starts the timer for the daily backups.
+The script creates a new backup repository (in the current directory). It also
+creates configuration files, beautifies the current directory, and starts the
+timer.
 
-A backup is created every night with the script ``borg-backup-create.sh``. It
-is controlled by a *Systemd* timer.
+From then on, a backup is created every night with the script
+``borg-backup-create.sh``.
 
 
 ===============================================================================
@@ -93,11 +93,14 @@ borg-backup-init.sh
 and sets up the necessary configuration files. It asks the user for a
 repository name, a password, and a path to duplicate the backup repository.
 
+The script also creates this README and a mount point (`mnt/`) to browse the
+repository.
+
 
 borg-backup-create.sh
 -------------------------------------------------------------------------------
 
-``borg-backup-create.sh`` creates a backup of ``/home`` and ``/usr/local``.  The
+``borg-backup-create.sh`` creates a backup of ``/home`` and ``/usr/local``. The
 backups are stored in the backup repository, older backups are deleted, the
 last yearly backup is kept indefinitely.
 
@@ -120,14 +123,16 @@ the duplicates too.
 Borg
 ===============================================================================
 
-This script creates backups on a local had disk. It keeps a number of past
-backups, and deletes backups that are too old. It uses the backup program
-*Borg*.
+*Borg* is a fully featured backup program: Backups can be created, restored,
+and mounted as directories. Furthermore backups can be deleted from the
+repository and checked for errors.
 
 Documentation and source code for the *Borg* program itself:
 
     https://borgbackup.readthedocs.io/en/stable/index.html
     https://github.com/borgbackup/borg/
+
+A few useful subcommands of *Borg* are listed below.
 
 
 List the Repository's Contents:
@@ -146,6 +151,27 @@ To restore an entire archive run the following command::
     borg extract /backup/borg-backup/lixie-backup-1.borg/::lixie-2018-04-13T17:11:46
 
 The restored files are created in the current working directory.
+
+
+Mount a Backup Repository
+-------------------------------------------------------------------------------
+
+Mount the backup repository with::
+
+    borg mount name-of-the-repository name-of-empty-directory
+  
+There is a directory ``mnt/`` in the backup directory for this purpose.
+
+Accessing a backup this way is relatively slow, graphical file managers can
+appear to hang from time to time.
+
+
+Unmount a Backup Repository
+-------------------------------------------------------------------------------
+
+Detach (unmount) the backup repository from the file system with::
+
+    borg umount directory-for-mount
 
 
 Create a New Repository
@@ -216,8 +242,8 @@ Systemd Unit Files
 -------------------------------------------------------------------------------
 
 Backups are run daily by *Systemd* instead of *Cron*. Two unit files are
-necessary for it: A *service* and a *timer*. Both files are in
-``/usr/local/lib/systemd/system``.
+necessary for it: A *service* and a *timer*. Both files are installed into
+``/etc/systemd/system/``.
 
 ``borg-backup-daily.service``
     This unit file runs the script ``borg-backup-create.sh``.
@@ -231,7 +257,9 @@ necessary for it: A *service* and a *timer*. Both files are in
 Rsync
 ===============================================================================
 
-The documentation for *Rsync* is here:
+*Rsync* is used to duplicate the backup repository to an external/removable
+hard disk. In principle *Rsync* can also duplicate a hard disk over the
+network, but this is unsupported by the scripts. The documentation is here:
 
     https://rsync.samba.org/documentation.html
 

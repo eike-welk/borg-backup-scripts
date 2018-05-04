@@ -48,12 +48,12 @@ Change into this directory, and run ``borg-backup-init.sh``. The script asks
 you for a repository name, a password, and a path to duplicate the backup
 repository.
 
-The script creates a new backup repository (in the current directory), creates
-the configuration files, beautifies the backup directory with a README and a
-restoration mount point, and starts the timer for the daily backups.
+The script creates a new backup repository (in the current directory). It also
+creates configuration files, beautifies the current directory, and starts the
+timer.
 
-A backup is created every night with the script ``borg-backup-create.sh``. It
-is controlled by a *Systemd* timer.
+From then on, a backup is created every night with the script
+``borg-backup-create.sh``.
 
 
 Restore a Lost File
@@ -73,7 +73,7 @@ To restore a small amount of lost data:
    can appear to hang from time to time.
 
 3. Detach (unmount) the backup repository from the file system with:
-   ``borg umount directory-for-mount``.
+   ``borg umount mnt/``.
 
 
 Duplicate the Repository

@@ -14,11 +14,6 @@ install borg-backup-rsync.sh    /usr/local/bin
 cp      borg-backup-readme.rst  /usr/local/bin
 
 # Install Systemd unit files.
-mkdir -p /usr/local/lib/systemd/system
-#cp borg-backup-daily.service  /usr/local/lib/systemd/system
-#cp borg-backup-daily.timer    /usr/local/lib/systemd/system
-
-## Copy into standard Systemd directory instead?
 cp borg-backup-daily.service  /etc/systemd/system/
 cp borg-backup-daily.timer    /etc/systemd/system/
 

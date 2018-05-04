@@ -10,6 +10,8 @@
 # backups, and deletes backups that are too old. It uses the backup program
 # *Borg*.
 #
+# The original version of this script was taken from the documentation of Borg.
+#
 # The Github project of this script:
 #   https://github.com/eike-welk/borg-backup-scripts
 #
@@ -58,9 +60,10 @@ source /etc/borg-backup/repo-secrets.sh
 export BORG_REPO
 export BORG_PASSPHRASE
 
-# some helpers and error handling: -------------------------------------------
+# Print messages to standard output with date and time.
 info() { printf "\n%s %s\n\n" "$( date --rfc-3339=seconds )" "$*" >&2; }
 
+# Exit the whole script when Ctrl-C is pressed.
 trap 'info "Backup interrupted."; exit 2' INT TERM
 
 info "Starting backup - $BORG_REPO"
@@ -93,10 +96,12 @@ backup_exit=$?
 info "Pruning repository"
 
 # Delete old archives --------------------------------------------------------
-# Use the `prune` subcommand to maintain 10 daily, 10 weekly, 10 monthly and
-# unlimited yearly archives of THIS machine. The '{hostname}-' prefix is very
-# important to limit prune's operation to this machine's archives and not apply
-# to other machines' archives also:
+# Use the `prune` subcommand to delete old backups, but keep a number of mostly
+# recent backups. The retention rules are: Keep all backups for 2 days. Keep 10
+# daily, 10 weekly, 10 monthly and unlimited yearly backups. 
+# Only backups of THIS machine are affected. The '{hostname}-' prefix limits
+# the prune command to backups of the current machine. Therefore the archive
+# could hold backups of multiple computers.
 
 borg prune                          \
     --list                          \
