@@ -3,7 +3,8 @@ Description=Run Borg backup daily.
 
 [Timer]
 # Format: [weekday] year-month-day hour:minute:second [timezone]
-OnCalendar=*-*-* 23:45:00
+# The storage server is restarted daily at 00:00:00. Run shortly after reboot.
+OnCalendar=*-*-* 00:15:00
 
 # Store last run time. Run unit immediately after boot, when runs were skipped.
 # For example because the computer was switched off.

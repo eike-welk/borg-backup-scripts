@@ -20,29 +20,6 @@
 #     https://github.com/borgbackup/borg/
 #
 # ----------------------------------------------------------------------------
-# Create new backup repositories with the following command:
-#
-#     borg init --encryption=repokey /backup/borg-backup/lixie-backup-1.borg
-#
-# ----------------------------------------------------------------------------
-# List the repository's contents:
-#
-#     borg list /backup/borg-backup/lixie-backup-1.borg
-#
-# Restore an archive: The restored files are created in the current working
-# directory.
-#
-#     borg extract /backup/borg-backup/lixie-backup-1.borg/::lixie-2018-04-13T17:11:46
-#
-# ----------------------------------------------------------------------------
-# Copy the backup repository to an other (removable) disk with *Rsync*. Option
-# `--delete` deletes file which are no longer in the source directory.
-#
-#     rsync --verbose --archive --delete            \
-#          /backup/borg-backup/lixie-backup-1.borg  \
-#          /run/media/root/back-ext-4/borg-backup
-#
-# ----------------------------------------------------------------------------
 # The backup configuration file:
 #
 #     /etc/borg-backup/repo-secrets.sh
@@ -55,6 +32,7 @@
 #     BORG_PASSPHRASE='xxxxxxxxxxx'
 #
 # ----------------------------------------------------------------------------
+
 # Set the repository location and passphrase. --------------------------------
 source /etc/borg-backup/repo-secrets.sh
 export BORG_REPO
@@ -84,7 +62,7 @@ borg create                                   \
     --show-rc                                 \
     --compression lz4                         \
     --exclude-caches                          \
-    --exclude '/home/*/.cache/*'              \
+    # --exclude '/home/*/.cache/*'              \
                                               \
     ::'{hostname}-{utcnow:%Y-%m-%dT%H:%M:%S}' \
                                               \
@@ -98,7 +76,7 @@ info "Pruning repository"
 # Delete old archives --------------------------------------------------------
 # Use the `prune` subcommand to delete old backups, but keep a number of mostly
 # recent backups. The retention rules are: Keep all backups for 2 days. Keep 10
-# daily, 10 weekly, 10 monthly and unlimited yearly backups. 
+# daily, 10 weekly, 10 monthly and unlimited yearly backups.
 # Only backups of THIS machine are affected. The '{hostname}-' prefix limits
 # the prune command to backups of the current machine. Therefore the archive
 # could hold backups of multiple computers.
@@ -107,8 +85,8 @@ borg prune                          \
     --list                          \
     --prefix '{hostname}-'          \
     --show-rc                       \
-    --keep-within  2d               \
-    --keep-daily   10               \
+    --keep-within  10d              \
+    --keep-daily   30               \
     --keep-weekly  10               \
     --keep-monthly 10               \
     --keep-yearly  -1               \
@@ -130,4 +108,3 @@ then
 fi
 
 exit ${global_exit}
-

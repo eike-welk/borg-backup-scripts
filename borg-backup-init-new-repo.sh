@@ -11,17 +11,17 @@
 #   https://github.com/eike-welk/borg-backup-scripts
 
 # Configure error handler.
-trap 'printf "\n\"borg-backup-init.sh\" was interrupted.\n"; exit 2' INT TERM
-
-repo_dir="$PWD"
-config_dir='/etc/borg-backup'
-bin_dir='/usr/local/bin'
+trap 'printf "\n\"borg-backup-init-new-repo.sh\" was interrupted.\n"; exit 2' INT TERM
 
 # Test: We need root permissions for nearly everything in this script.
 if (( $(id -u) != 0 )); then
    echo "Error: This script needs to be run as root."
    exit 1
 fi
+
+repo_dir="$PWD"
+config_dir='/etc/borg-backup'
+bin_dir='/usr/local/bin'
 
 # create the configuration directory, if it does not exist.
 mkdir -p "$config_dir"
@@ -125,4 +125,3 @@ systemctl daemon-reload
 # Enable daily backups and also start them.
 systemctl enable borg-backup-daily.timer
 systemctl start borg-backup-daily.timer
-
