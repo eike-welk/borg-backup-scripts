@@ -32,6 +32,7 @@
 #     BORG_PASSPHRASE='xxxxxxxxxxx'
 #
 # ----------------------------------------------------------------------------
+# spellchecker: ignore lixie utcnow
 
 # Set the repository location and passphrase. --------------------------------
 source /etc/borg-backup/repo-secrets.sh
@@ -62,7 +63,6 @@ borg create                                   \
     --show-rc                                 \
     --compression lz4                         \
     --exclude-caches                          \
-    # --exclude '/home/*/.cache/*'              \
                                               \
     ::'{hostname}-{utcnow:%Y-%m-%dT%H:%M:%S}' \
                                               \

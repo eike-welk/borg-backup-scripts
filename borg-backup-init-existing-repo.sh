@@ -41,7 +41,7 @@ if [ ! -f "$secrets_path" ]; then
     echo 'The repository can be located on a separate file server. The repository path'
     echo 'must then start with a username and a domain name (or IP); like so:'
     echo
-    echo '   "borg-backup@file-box:/srv/disk-backup/borg-repos/bookxie-backup"'
+    echo '   "borg-backup@file-box.fritz.box:/srv/disk-backup/borg-repos/bookxie-backup"'
     echo
 
     while true; do
