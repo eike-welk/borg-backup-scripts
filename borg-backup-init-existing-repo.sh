@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Show debugging output
-#set -x
+# set +x
 
 # ----------------------------------------------------------------------------
 #           Initialize Borg Backup Repository and Daily Backups
@@ -19,8 +19,11 @@ if (( $(id -u) != 0 )); then
    exit 1
 fi
 
-config_dir='/etc/borg-backup'
+# Some important paths.
 bin_dir='/usr/local/bin'
+config_dir='/etc/borg-backup'
+secrets_path="${config_dir}/repo-secrets.sh"
+rsync_config_path="${config_dir}/rsync-config.sh"
 
 # create the configuration directory, if it does not exist.
 mkdir -p "$config_dir"
@@ -29,8 +32,6 @@ mkdir -p "$config_dir"
 # The secrets file contains the repository name and password.
 borg_repo_path='xxxxxxxx'
 repo_passphrase='xxxxxxxx'
-
-secrets_path="${config_dir}/repo-secrets.sh"
 
 if [ ! -f "$secrets_path" ]; then
     echo 'No repository configuration found.'
@@ -60,15 +61,21 @@ BORG_PASSPHRASE="$repo_passphrase"
 EOF
         chmod go-rwx "$secrets_path"
 
-        # Test if the repository is accessible.
+        # Source the secrets file to make the variables available.
         source /etc/borg-backup/repo-secrets.sh
         export BORG_REPO
         export BORG_PASSPHRASE
 
-        echo 'borg list'
+        # Test if the repository is accessible.
+        echo '> borg list'
         borg list
         if [ $? -ne 0 ]; then
             echo "Error: The repository is not accessible."
+
+            read -e -p "Continue anyway? [y/n] (n): " ans_yn
+            if [[ "$ans_yn" == "y" ]]; then
+                break
+            fi
         else
             echo "The repository is accessible."
             break
@@ -84,3 +91,39 @@ else
     # TODO: Test if the repository is accessible.
 fi
 echo
+
+# Create Rsync configuration file, if none exists. ---------------------------
+if [ ! -f "$rsync_config_path" ]; then
+    echo "No rsync configuration found."
+    echo "Enter the path of the cloned repository. (Can be left empty.)"
+
+    # Ask for rsync locations
+    read -e -p "Cloned repository: " rsync_target_dir_1
+
+    # Create rsync configuration file
+    echo "Creating \"rsync\" configuration file:"
+    echo "    $rsync_config_path"
+    cat > "$rsync_config_path" << EOF
+# Directories where the original Borg repository should be copied to.
+BORG_RSYNC_TARGET_DIR_1='${rsync_target_dir_1}'
+BORG_RSYNC_TARGET_DIR_2=''
+BORG_RSYNC_TARGET_DIR_3=''
+BORG_RSYNC_TARGET_DIR_4=''
+EOF
+
+else
+    echo "\"rsync\" configuration already exists:"
+    echo "    $rsync_config_path"
+    echo "Edit / rename / delete this file if you want to use a different"
+    echo "\"rsync\" configuration."
+fi
+echo
+
+# TODO: Install the unit files if necessary.
+# Start Systemd timer ---------------------------------------------------------
+# Reload all Systemd unit files.
+systemctl daemon-reload
+
+# Enable daily backups and also start them.
+systemctl enable borg-backup-daily.timer
+systemctl start borg-backup-daily.timer
